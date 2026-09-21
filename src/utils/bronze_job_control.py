@@ -43,14 +43,14 @@ schema = StructType([
     StructField("updated_at", TimestampType(), False)
 ])
 
-def upsert_ingestion_control(spark,table_name,timestamp_col,primary_col,last_ingested_ts,last_ingested_pk,last_run_id,rows_written):
+def upsert_ingestion_control(spark,layer,table_name,timestamp_col,primary_col,last_ingested_ts,last_ingested_pk,last_run_id,rows_written):
     """
     This function upserts the ingestion_control_table table with the last successful timestamp 
     from the last run of the job
     """
     control_df = spark.createDataFrame(
         [(
-            "bronze",
+            layer,
             table_name,
             timestamp_col,
             primary_col,
