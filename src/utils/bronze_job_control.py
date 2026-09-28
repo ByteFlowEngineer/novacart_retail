@@ -12,7 +12,7 @@ def get_last_successful_timestamp(spark,tablename : str,layer:str="bronze"):
     from the last run of the job from ingestion_control_table table
     """
 
-    df = spark.read.table("novacart_catalog.audit.ingestion_control_table")
+    df = spark.read.table("novacart_catalog.audit.bronze_processing_control")
     df_maxt_timestamp = (
         df.filter(
             (F.col("layer") == layer) &
@@ -65,7 +65,7 @@ def upsert_ingestion_control(spark,layer,table_name,timestamp_col,primary_col,la
         schema=schema
     )
 
-    dt = DeltaTable.forName(spark, "novacart_catalog.audit.ingestion_control_table")
+    dt = DeltaTable.forName(spark, "novacart_catalog.audit.bronze_processing_control")
     
     dt.alias("t") \
       .merge(

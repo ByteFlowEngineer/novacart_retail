@@ -13,7 +13,7 @@ def upsert_to_silver(spark,df_source,target_table,join_key):
     if spark.catalog.tableExists(target_table):
         dt = DeltaTable.forName(spark,target_table)
         (dt.alias("target").merge(
-            df_source.alias("spurce"),f"target.{join_key} = spurce.{join_key}"
+            df_source.alias("source"),f"target.{join_key} = source.{join_key}"
             ).whenMatchedUpdateAll().whenNotMatchedInsertAll().execute())
     else:
         df_source.write.format("delta").mode("append").saveAsTable(target_table)
@@ -26,7 +26,7 @@ def upsert_to_silver(spark,df_source,target_table,join_key):
 """
 
 def get_last_processed_bronze_ingested_at(spark,table_name):
-    ctrl = (spark.table("novacart_catalog.audit.processing_control") 
+    ctrl = (spark.table("novacart_catalog.audit.silver_processing_control") 
                 .filter(
                     (F.col("layer") == "silver") &
                     (F.col("table_name") == table_name) &
@@ -79,7 +79,7 @@ def upsert_silver_control(spark,table_name,last_processed_bronze_run_id,last_pro
         schema=schema
         )
     
-    dt = DeltaTable.forName(spark, "novacart_catalog.audit.processing_control")
+    dt = DeltaTable.forName(spark, "novacart_catalog.audit.silver_processing_control")
 
     (
         dt.alias("target")
